@@ -1,0 +1,105 @@
+#!/usr/bin/env ruby 
+#
+# eet - Main executable
+#
+# ====================================================================
+# Copyright (c) 2014 Tony Doan <tdoan@tdoan.com>.  All rights reserved.
+#
+# This software is licensed as described in the file LICENSE.txt, which
+# you should have received as part of this distribution.  The terms
+# are also available at http://github.com/tdoan/eight-eight-two/tree/master/LICENSE.txt.
+# If newer versions of this license are posted there, you may use a
+# newer version instead, at your option.
+# ====================================================================
+#
+require 'ostruct'
+require 'optparse'
+require 'logger'
+
+require 'eight-eight-two'
+
+module EightEightTwo
+class CommandLine
+  def self.parse(args)
+    options = OpenStruct.new
+    options.config    = nil
+    options.daemon    = false
+    options.log       = Logger.new(STDOUT)
+    options.log_level = Logger::INFO
+
+    opt_parser = OptionParser.new do |opts|
+      opts.program_name = 'eet'
+
+      opts.on("-c", "--config CONFIG", "Path to config file") do |c|
+        begin
+          case c
+          when String
+            f = File.open(c,"r").read
+          when IO
+            f = c.read
+          end
+          tree = EightEightTwo::Parser.parse(f)
+          options.config = tree.elements.find_all do |e|
+            e.is_a? EightEightTwoConfig::ServerBlock
+          end
+          options.config.each do |sb|
+            $stderr.puts sb.to_h.inspect
+          end
+        rescue ConfigParseException => ex
+          options.log.fatal(ex.to_s)
+          exit(-1)
+        end
+
+        # hashes = server_blocks.collect{|e| e.to_h}
+        # hashes.each do |h|
+        #   # puts h.inspect
+        #   begin
+        #     puts h.fetch(:options).fetch("anything_can")
+        #   rescue KeyError
+        #     puts "fail"
+        #     exit(-1)
+        #   end
+        # end
+      end
+
+      opts.on('-d', '--daemon', 'Daemonize process') do |d|
+      end
+
+      opts.on('-l', '--log', 'Specify logging') do |d|
+      end
+      
+      opts.on_tail('-h', '--help', 'Show this message') do
+        puts opts
+        exit
+      end
+      opts.on_tail('-V', '--version', 'Show version') do
+        puts EightEightTwo::VERSION
+        exit
+      end
+    end
+
+    begin
+      opt_parser.parse!
+      mandatory = [:config]
+      missing = mandatory.select{ |param| options[param].nil? }
+      if not missing.empty?
+        puts "Missing options: #{missing.join(', ')}"
+        puts opt_parser
+        exit
+      end
+    rescue OptionParser::InvalidOption, OptionParser::MissingArgument
+      puts '---'
+      puts $!.to_s
+      puts '---'
+      puts opt_parser
+      exit
+    end
+    options
+  end
+end
+end
+
+options = EightEightTwo::CommandLine.parse(ARGV)
+options.log.level = options.log_level
+
+server = EightEightTwo::Server.execute(options)

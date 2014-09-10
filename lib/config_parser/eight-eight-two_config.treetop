@@ -1,0 +1,75 @@
+#
+# eight-eight-two_config.treetop - Config file treetop grammar
+#
+# ====================================================================
+# Copyright (c) 2014 Tony Doan <tdoan@tdoan.com>.  All rights reserved.
+#
+# This software is licensed as described in the file LICENSE.txt, which
+# you should have received as part of this distribution.  The terms
+# are also available at http://github.com/tdoan/eight-eight-two/tree/master/LICENSE.txt.
+# If newer versions of this license are posted there, you may use a
+# newer version instead, at your option.
+# ====================================================================
+#
+grammar EightEightTwoConfig
+  rule body
+    (server_block / space)* <Body>
+  end
+
+  rule server_block
+    'server' space '{' bbody:block_body '}' <ServerBlock>
+  end
+
+  rule block_body
+    (port / ips / domain_name / backend / options / space)* <BlockBody>
+  end
+
+  rule port
+    space? 'port:' space? port_number:integer <Port>
+  end
+
+  rule ips
+    space? 'ip:' space? ip:[0-9.]* <Ip>
+  end
+
+  rule domain_name
+    space? 'domain:' space? string <DomainName>
+  end
+
+  rule backend
+    space? 'backend:' space? string <Backend>
+  end
+
+  rule options
+    space? 'options:' space? '{' space? ob:options_body space? '}' <Options>
+  end
+
+  rule options_body
+    (option / space)* <OptionsBody>
+  end
+
+  rule option
+    space? key:string ':' space? value:string space? <Option>
+  end
+
+  rule integer
+    ('+' / '-')? [0-9]+ <IntegerLiteral>
+  end
+
+  rule float
+    ('+' / '-')? [0-9]+ (('.' [0-9]+) / ('e' [0-9]+)) <FloatLiteral>
+  end
+
+  rule quoted_string
+    '"' ([^"\\] / "\\" . )* '"' <StringLiteral>
+  end
+
+  rule string
+    [a-zA-Z\=\*] [a-zA-Z0-9_\=\*]* <StringLiteral>
+  end
+
+  rule space
+    [\s]+
+  end
+
+end

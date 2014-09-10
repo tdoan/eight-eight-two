@@ -1,0 +1,44 @@
+PATH
+  remote: .
+  specs:
+    eight-eight-two (0.0.1)
+      eventmachine
+      net-dns
+      rb-fsevent
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    coderay (1.1.0)
+    eventmachine (1.0.3)
+    ffi (1.9.3-java)
+    method_source (0.8.2)
+    net-dns (0.8.0)
+    polyglot (0.3.4)
+    pry (0.9.12.6)
+      coderay (~> 1.0)
+      method_source (~> 0.8)
+      slop (~> 3.4)
+    pry (0.9.12.6-java)
+      coderay (~> 1.0)
+      method_source (~> 0.8)
+      slop (~> 3.4)
+      spoon (~> 0.0)
+    rake (10.1.0)
+    rb-fsevent (0.9.3)
+    slop (3.5.0)
+    spoon (0.0.4)
+      ffi
+    treetop (1.5.3)
+      polyglot (~> 0.3)
+
+PLATFORMS
+  java
+  ruby
+
+DEPENDENCIES
+  bundler (~> 1.5)
+  eight-eight-two!
+  pry
+  rake
+  treetop
